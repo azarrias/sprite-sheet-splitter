@@ -1,60 +1,84 @@
 require 'globals'
 
-local FONT_SIZE = 16
-
-function love.load()
-  if arg[#arg] == "-debug" then 
-    require("mobdebug").start() 
-  end
-
-  -- use nearest-neighbor (point) filtering on upscaling and downscaling to prevent blurring of text and 
-  -- graphics instead of the bilinear filter that is applied by default 
-  love.graphics.setDefaultFilter('nearest', 'nearest')
-  
-  -- Set up window
-  push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
-    vsync = true,
-    fullscreen = MOBILE_OS,
-    resizable = not MOBILE_OS
-  })
+--
+-- LOVE callbacks
+--
+function love.load(arg)
+  love.window.setMode(WINDOW_WIDTH, WINDOW_HEIGHT)
   love.window.setTitle(GAME_TITLE)
-  
-  font = love.graphics.newFont(FONT_SIZE)
-  love.graphics.setFont(font)
-  os_str = love.system.getOS()
-  vmajor, vminor, vrevision, vcodename = love.getVersion()
-  v_str = string.format("Love version: %d.%d.%d - %s", vmajor, vminor, vrevision, vcodename)
-  bd_str = love.filesystem.getSourceBaseDirectory()
-  wd_str = love.filesystem.getWorkingDirectory()
-  
-  love.keyboard.keysPressed = {}
+  test = love.graphics.newImage('graphics/character.png')
+--  canvas = love.graphics.newCanvas(800, 600)
 end
 
 function love.update(dt)
-  -- exit if esc is pressed
-  if love.keyboard.keysPressed['escape'] then
-    love.event.quit()
-  end
-  
-  love.keyboard.keysPressed = {}
-end
-
-function love.resize(w, h)
-  push:resize(w, h)
-end
-  
--- Callback that processes key strokes just once
--- Does not account for keys being held down
-function love.keypressed(key)
-  love.keyboard.keysPressed[key] = true
+  imgui.NewFrame()
 end
 
 function love.draw()
-  push:start()
-  love.graphics.print(GAME_TITLE, 0, 0)
-  love.graphics.print("O.S.: " .. os_str, 0, 16)
-  love.graphics.print(v_str, 0, 32)
-  love.graphics.print("Source base path: " .. bd_str, 0, 48)
-  love.graphics.print("Working path: " .. wd_str, 0, 64)
-  push:finish()
+  --love.graphics.setCanvas(canvas)
+  --love.graphics.setBlendMode('alpha', 'alphamultiply')
+  --love.graphics.draw(test, 0, 0)  
+  --love.graphics.setCanvas()
+  
+  --imgui.Image(canvas, 800, 600)
+    
+  love.graphics.clear(0.3, 0.3, 0.3)
+  love.graphics.draw(test, 0, 0)
+  imgui.Render();
+end
+
+function love.quit()
+  imgui.ShutDown();
+end
+
+--
+-- User inputs
+--
+function love.textinput(t)
+    imgui.TextInput(t)
+    if not imgui.GetWantCaptureKeyboard() then
+        -- Pass event to the game
+    end
+end
+
+function love.keypressed(key)
+    imgui.KeyPressed(key)
+    if not imgui.GetWantCaptureKeyboard() then
+        -- Pass event to the game
+    end
+end
+
+function love.keyreleased(key)
+    imgui.KeyReleased(key)
+    if not imgui.GetWantCaptureKeyboard() then
+        -- Pass event to the game
+    end
+end
+
+function love.mousemoved(x, y)
+    imgui.MouseMoved(x, y)
+    if not imgui.GetWantCaptureMouse() then
+        -- Pass event to the game
+    end
+end
+
+function love.mousepressed(x, y, button)
+    imgui.MousePressed(button)
+    if not imgui.GetWantCaptureMouse() then
+        -- Pass event to the game
+    end
+end
+
+function love.mousereleased(x, y, button)
+    imgui.MouseReleased(button)
+    if not imgui.GetWantCaptureMouse() then
+        -- Pass event to the game
+    end
+end
+
+function love.wheelmoved(x, y)
+    imgui.WheelMoved(y)
+    if not imgui.GetWantCaptureMouse() then
+        -- Pass event to the game
+    end
 end
