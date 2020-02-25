@@ -6,8 +6,8 @@ require 'globals'
 function love.load(arg)
   love.window.setMode(WINDOW_WIDTH, WINDOW_HEIGHT)
   love.window.setTitle(GAME_TITLE)
-  test = love.graphics.newImage('graphics/character.png')
---  canvas = love.graphics.newCanvas(800, 600)
+  test = love.graphics.newImage('graphics/character.png') 
+  canvas = love.graphics.newCanvas(test:getWidth(), test:getHeight())
 end
 
 function love.update(dt)
@@ -15,15 +15,43 @@ function love.update(dt)
 end
 
 function love.draw()
-  --love.graphics.setCanvas(canvas)
-  --love.graphics.setBlendMode('alpha', 'alphamultiply')
-  --love.graphics.draw(test, 0, 0)  
-  --love.graphics.setCanvas()
+  love.graphics.setCanvas(canvas)
+  love.graphics.setBlendMode('alpha', 'alphamultiply')
+  love.graphics.draw(test, 0, 0)  
+  love.graphics.setCanvas()
   
-  --imgui.Image(canvas, 800, 600)
+  imgui.SetNextWindowPos(0, 0)
+  imgui.SetNextWindowSize(love.graphics.getWidth(), love.graphics.getHeight())
+  
+  if imgui.Begin("DockArea", nil, { "NoResize", "NoMove", "NoBrinToFrontOnFocus" }) then
+    imgui.BeginDockspace()
     
-  love.graphics.clear(0.3, 0.3, 0.3)
-  love.graphics.draw(test, 0, 0)
+    imgui.SetNextDock("Right")
+    imgui.SetNextDockSplitRatio(0.7, 0.7)
+    imgui.BeginDock("Edit")
+    imgui.Text("Testing...")
+    imgui.EndDock()
+    
+    --[[
+    Broken docks on master: BeginDock doesn't return a boolean
+    https://github.com/slages/love-imgui/issues/28
+    
+    if imgui.BeginDock("Edit") then
+       ...  
+    end
+    ]]
+    imgui.SetNextDock("Left")
+    imgui.BeginDock("Sprite sheet")
+    imgui.Image(canvas, test:getWidth(), test:getHeight())
+    imgui.EndDock()
+   
+    imgui.EndDockspace()
+  end
+  
+  imgui.End()
+  
+  love.graphics.clear(1, 1, 1)
+  --love.graphics.draw(test, 0, 0)
   imgui.Render();
 end
 
