@@ -6,6 +6,7 @@ require 'globals'
 function love.load(arg)
   love.window.setMode(WINDOW_WIDTH, WINDOW_HEIGHT)
   love.window.setTitle(GAME_TITLE)
+  love.graphics.setDefaultFilter('nearest', 'nearest')
   test = love.graphics.newImage('graphics/character.png') 
   canvas = love.graphics.newCanvas(test:getWidth(), test:getHeight())
 end
@@ -42,7 +43,7 @@ function love.draw()
     ]]
     imgui.SetNextDock("Left")
     imgui.BeginDock("Sprite sheet")
-    imgui.Image(canvas, test:getWidth(), test:getHeight())
+    imgui.Image(canvas, test:getWidth() * 2, test:getHeight() * 2)
     imgui.EndDock()
    
     imgui.EndDockspace()
