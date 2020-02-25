@@ -27,7 +27,8 @@ end
 function love.draw()
   love.graphics.setCanvas(canvas)
   love.graphics.setBlendMode('alpha', 'alphamultiply')
-  love.graphics.draw(test, 0, 0)  
+  love.graphics.clear(0, 0, 0)
+  love.graphics.draw(test, 0, 0)
   
   love.graphics.setColor(0.9, 0.9, 0.9, 0.3)
   love.graphics.setLineStyle('rough')
@@ -47,13 +48,20 @@ function love.draw()
   imgui.SetNextWindowPos(0, 0)
   imgui.SetNextWindowSize(love.graphics.getWidth(), love.graphics.getHeight())
   
-  if imgui.Begin("DockArea", nil, { "NoResize", "NoMove", "NoBringToFrontOnFocus" }) then
+  if imgui.Begin("DockArea", nil, { "ImGuiWindowFlags_NoTitleBar", "NoResize", "NoMove", "NoBringToFrontOnFocus" }) then
     imgui.BeginDockspace()
     
     imgui.SetNextDock("Right")
     imgui.SetNextDockSplitRatio(0.7, 0.7)
     imgui.BeginDock("Edit")
     imgui.Text("Testing...")
+    nrOfRows = imgui.InputInt("Number of rows", nrOfRows, 1);
+    nrOfColumns = imgui.InputInt("Number of columns", nrOfColumns, 1);
+    spriteWidth = imgui.InputInt("Sprite width", spriteWidth, 1);
+    spriteHeight = imgui.InputInt("Sprite height", spriteHeight, 1);
+    xOffset = imgui.InputInt("X offset", xOffset, 1);
+    yOffset = imgui.InputInt("Y offset", yOffset, 1);
+    
     imgui.EndDock()
     
     --[[
