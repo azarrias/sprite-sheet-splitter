@@ -7,6 +7,8 @@ local spriteWidth = 16
 local spriteHeight = 32
 local xOffset = 0
 local yOffset = 0
+local xPadding = 0
+local yPadding = 0
 
 function love.load(arg)
   if arg[#arg] == "-debug" then 
@@ -35,8 +37,8 @@ function love.draw()
   for y = 1, nrOfRows do
     for x = 1, nrOfColumns do
       love.graphics.rectangle('line', 
-        (x - 1) * spriteWidth + xOffset + 1, 
-        (y - 1) * spriteHeight + yOffset + 1, 
+        (x - 1) * (spriteWidth + xPadding) + xOffset + 1, 
+        (y - 1) * (spriteHeight + yPadding) + yOffset + 1, 
         spriteWidth - 1, 
         spriteHeight - 1)
     end
@@ -54,13 +56,57 @@ function love.draw()
     imgui.SetNextDock("Right")
     imgui.SetNextDockSplitRatio(0.7, 0.7)
     imgui.BeginDock("Edit")
-    imgui.Text("Testing...")
-    nrOfRows = imgui.InputInt("Number of rows", nrOfRows, 1);
-    nrOfColumns = imgui.InputInt("Number of columns", nrOfColumns, 1);
-    spriteWidth = imgui.InputInt("Sprite width", spriteWidth, 1);
-    spriteHeight = imgui.InputInt("Sprite height", spriteHeight, 1);
-    xOffset = imgui.InputInt("X offset", xOffset, 1);
-    yOffset = imgui.InputInt("Y offset", yOffset, 1);
+    imgui.Text("Slicing parameters")
+    
+    imgui.AlignTextToFramePadding()
+    imgui.Text("Number of rows")
+    imgui.SameLine(150)
+    imgui.PushItemWidth(142)
+    nrOfRows = imgui.InputInt("##nrOfRows", nrOfRows, 1);
+    imgui.AlignTextToFramePadding()
+    imgui.Text("Number of columns")
+    imgui.SameLine(150)
+    nrOfColumns = imgui.InputInt("##nrOfColumns", nrOfColumns, 1);
+    imgui.PopItemWidth()
+    
+    imgui.AlignTextToFramePadding()
+    imgui.Text("Pixels per sprite")
+    imgui.SameLine(150)
+    imgui.Text("X")
+    imgui.SameLine(163)
+    imgui.PushItemWidth(50)
+    spriteWidth = imgui.InputInt("##spriteWidth", spriteWidth, 0)
+    imgui.SameLine(230)
+    imgui.Text("Y")
+    imgui.SameLine(243)
+    spriteHeight = imgui.InputInt("##spriteHeight", spriteHeight, 0)
+    imgui.PopItemWidth()
+
+    imgui.AlignTextToFramePadding()
+    imgui.Text("Offset")
+    imgui.SameLine(150)
+    imgui.Text("X")
+    imgui.SameLine(163)
+    imgui.PushItemWidth(50)
+    xOffset = imgui.InputInt("##xOffset", xOffset, 0)
+    imgui.SameLine(230)
+    imgui.Text("Y")
+    imgui.SameLine(243)
+    yOffset = imgui.InputInt("##yOffset", yOffset, 0)
+    imgui.PopItemWidth()
+    
+    imgui.AlignTextToFramePadding()
+    imgui.Text("Padding")
+    imgui.SameLine(150)
+    imgui.Text("X")
+    imgui.SameLine(163)
+    imgui.PushItemWidth(50)
+    xPadding = imgui.InputInt("##xPadding", xPadding, 0)
+    imgui.SameLine(230)
+    imgui.Text("Y")
+    imgui.SameLine(243)
+    yPadding = imgui.InputInt("##yPadding", yPadding, 0)
+    imgui.PopItemWidth()
     
     imgui.EndDock()
     
