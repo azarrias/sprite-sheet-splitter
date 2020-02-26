@@ -3,12 +3,9 @@ require 'globals'
 local spriteSheetScale = 1
 local nrOfRows = 4
 local nrOfColumns = 4
-local spriteWidth = 16
-local spriteHeight = 32
-local xOffset = 0
-local yOffset = 0
-local xPadding = 0
-local yPadding = 0
+local spriteSize = Vector2D(16, 32)
+local offset = Vector2D(0, 0)
+local padding = Vector2D(0, 0)
 
 function love.load(arg)
   if arg[#arg] == "-debug" then 
@@ -37,10 +34,10 @@ function love.draw()
   for y = 1, nrOfRows do
     for x = 1, nrOfColumns do
       love.graphics.rectangle('line', 
-        (x - 1) * (spriteWidth + xPadding) + xOffset + 1, 
-        (y - 1) * (spriteHeight + yPadding) + yOffset + 1, 
-        spriteWidth - 1, 
-        spriteHeight - 1)
+        (x - 1) * (spriteSize.x + padding.x) + offset.x + 1, 
+        (y - 1) * (spriteSize.y + padding.y) + offset.y + 1, 
+        spriteSize.x - 1, 
+        spriteSize.y - 1)
     end
   end
   love.graphics.setColor(1, 1, 1)
@@ -58,56 +55,12 @@ function love.draw()
     imgui.BeginDock("Edit")
     imgui.Text("Slicing parameters")
     
-    imgui.AlignTextToFramePadding()
-    imgui.Text("Number of rows")
-    imgui.SameLine(150)
-    imgui.PushItemWidth(142)
-    nrOfRows = imgui.InputInt("##nrOfRows", nrOfRows, 1);
-    imgui.AlignTextToFramePadding()
-    imgui.Text("Number of columns")
-    imgui.SameLine(150)
-    nrOfColumns = imgui.InputInt("##nrOfColumns", nrOfColumns, 1);
-    imgui.PopItemWidth()
-    
-    imgui.AlignTextToFramePadding()
-    imgui.Text("Pixels per sprite")
-    imgui.SameLine(150)
-    imgui.Text("X")
-    imgui.SameLine(163)
-    imgui.PushItemWidth(50)
-    spriteWidth = imgui.InputInt("##spriteWidth", spriteWidth, 0)
-    imgui.SameLine(230)
-    imgui.Text("Y")
-    imgui.SameLine(243)
-    spriteHeight = imgui.InputInt("##spriteHeight", spriteHeight, 0)
-    imgui.PopItemWidth()
+    nrOfRows = RenderIntParameter("Number of rows", "##nrOfRows", nrOfRows)
+    nrOfColumns = RenderIntParameter("Number of columns", "##nrOfColumns", nrOfColumns)
+    spriteSize = RenderXYParameter("Pixels per sprite", "##spriteSize", spriteSize)
+    offset = RenderXYParameter("Offset", "##offset", offset)
+    padding = RenderXYParameter("Padding", "##padding", padding)
 
-    imgui.AlignTextToFramePadding()
-    imgui.Text("Offset")
-    imgui.SameLine(150)
-    imgui.Text("X")
-    imgui.SameLine(163)
-    imgui.PushItemWidth(50)
-    xOffset = imgui.InputInt("##xOffset", xOffset, 0)
-    imgui.SameLine(230)
-    imgui.Text("Y")
-    imgui.SameLine(243)
-    yOffset = imgui.InputInt("##yOffset", yOffset, 0)
-    imgui.PopItemWidth()
-    
-    imgui.AlignTextToFramePadding()
-    imgui.Text("Padding")
-    imgui.SameLine(150)
-    imgui.Text("X")
-    imgui.SameLine(163)
-    imgui.PushItemWidth(50)
-    xPadding = imgui.InputInt("##xPadding", xPadding, 0)
-    imgui.SameLine(230)
-    imgui.Text("Y")
-    imgui.SameLine(243)
-    yPadding = imgui.InputInt("##yPadding", yPadding, 0)
-    imgui.PopItemWidth()
-    
     imgui.EndDock()
     
     --[[
@@ -135,6 +88,34 @@ end
 
 function love.quit()
   imgui.ShutDown();
+end
+
+function RenderIntParameter(label, id, value)
+  imgui.AlignTextToFramePadding()
+  imgui.Text(label)
+  imgui.SameLine(150)
+  imgui.PushItemWidth(142)
+  value = imgui.InputInt(id, value, 1)
+  imgui.PopItemWidth()
+  
+  return value
+end
+
+function RenderXYParameter(label, id, value)
+  imgui.AlignTextToFramePadding()
+  imgui.Text(label)
+  imgui.SameLine(150)
+  imgui.Text("X")
+  imgui.SameLine(163)
+  imgui.PushItemWidth(50)
+  value.x = imgui.InputInt(id .. "X", value.x, 0)
+  imgui.SameLine(230)
+  imgui.Text("Y")
+  imgui.SameLine(243)
+  value.y = imgui.InputInt(id .. "Y", value.y, 0)
+  imgui.PopItemWidth()
+  
+  return value
 end
 
 function love.textinput(t)
