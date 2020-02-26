@@ -53,13 +53,23 @@ function love.draw()
     imgui.SetNextDock("Right")
     imgui.SetNextDockSplitRatio(0.7, 0.7)
     imgui.BeginDock("Edit")
+    local x, y = imgui.CalcTextSize("Slicing parameters")
+    imgui.Indent(293 / 2 - x / 2)
     imgui.Text("Slicing parameters")
+    imgui.Unindent(293 / 2 - x / 2)
     
     nrOfRows = RenderIntParameter("Number of rows", "##nrOfRows", nrOfRows)
     nrOfColumns = RenderIntParameter("Number of columns", "##nrOfColumns", nrOfColumns)
     spriteSize = RenderXYParameter("Pixels per sprite", "##spriteSize", spriteSize)
     offset = RenderXYParameter("Offset", "##offset", offset)
     padding = RenderXYParameter("Padding", "##padding", padding)
+    
+    imgui.Dummy(0, 10)
+    local buttonSize = Vector2D(50, 20)
+    imgui.Indent(293 / 2 - buttonSize.x / 2)
+    if imgui.Button("Slice", buttonSize.x, buttonSize.y) then
+      imgui.Text("Test button")
+    end
 
     imgui.EndDock()
     
