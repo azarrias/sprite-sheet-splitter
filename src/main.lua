@@ -1,5 +1,7 @@
 require 'globals'
 
+local debugMode = true
+
 local spriteSheetScale = 1
 local nrOfRows = 4
 local nrOfColumns = 4
@@ -7,8 +9,13 @@ local spriteSize = Vector2D(16, 32)
 local offset = Vector2D(0, 0)
 local padding = Vector2D(0, 0)
 
+local sliceLineColor = { 0.9, 0.9, 0.9, 0.3 }
+local canvasBackgroundColor = { 0, 0, 0 }
+local themePrimaryColor = { 1, 1, 1 }
+local backgroundTint = { 1, 1, 1 }
+
 function love.load(arg)
-  if arg[#arg] == "-debug" then 
+  if debugMode and arg[#arg] == "-debug" then 
     require("mobdebug").start() 
   end
   
@@ -26,10 +33,10 @@ end
 function love.draw()
   love.graphics.setCanvas(canvas)
   love.graphics.setBlendMode('alpha', 'alphamultiply')
-  love.graphics.clear(0, 0, 0)
+  love.graphics.clear(canvasBackgroundColor)
   love.graphics.draw(test, 0, 0)
   
-  love.graphics.setColor(0.9, 0.9, 0.9, 0.3)
+  love.graphics.setColor(sliceLineColor)
   love.graphics.setLineStyle('rough')
   for y = 1, nrOfRows do
     for x = 1, nrOfColumns do
@@ -40,7 +47,7 @@ function love.draw()
         spriteSize.y - 1)
     end
   end
-  love.graphics.setColor(1, 1, 1)
+  love.graphics.setColor(themePrimaryColor)
   
   love.graphics.setCanvas()
   
@@ -83,6 +90,8 @@ function love.draw()
     ]]
     imgui.SetNextDock("Left")
     imgui.BeginDock("Sprite sheet")
+    spritePos = Vector2D(0, 0)
+    spritePos.x, spritePos.y = imgui.GetCursorScreenPos()
     imgui.Image(canvas, test:getWidth() * spriteSheetScale, test:getHeight() * spriteSheetScale)
     imgui.EndDock()
    
@@ -91,7 +100,11 @@ function love.draw()
   
   imgui.End()
   
-  love.graphics.clear(1, 1, 1)
+  if debugMode then
+    RenderFixedOverlay(Vector2D(WINDOW_WIDTH - 230, WINDOW_HEIGHT - 70))
+  end
+  
+  love.graphics.clear(backgroundTint)
   --love.graphics.draw(test, 0, 0)
   imgui.Render();
 end
@@ -126,6 +139,19 @@ function RenderXYParameter(label, id, value)
   imgui.PopItemWidth()
   
   return value
+end
+
+function RenderFixedOverlay(pos)
+  imgui.SetNextWindowPos(pos.x, pos.y)
+  imgui.SetNextWindowSize(220, 60)
+  if imgui.Begin("Fixed Overlay", nil, { "ImGuiWindowFlags_NoTitleBar", "ImGuiWindowFlags_NoResize", "ImGuiWindowFlags_NoMove", "ImGuiWindowFlags_NoSavedSettings" }) then
+    imgui.Text("Debug info:");
+    local x, y = imgui.GetMousePos()
+    x = math.min(math.max(-1, x), WINDOW_WIDTH)
+    y = math.min(math.max(-1, y), WINDOW_HEIGHT)
+    imgui.Text("Mouse Position: (" .. tostring(x) .. ", " .. tostring(y) .. ")")
+  end
+  imgui.End();
 end
 
 function love.textinput(t)
