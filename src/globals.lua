@@ -4,6 +4,10 @@ push = require 'libs.push'
 imgui = require 'imgui'
 
 -- general purpose / utility
+require 'StateMachine'
+require 'BaseState'
+require 'AppStateSlice'
+require 'AppStateStart'
 require 'SlicerGUI'
 require 'util'
 require 'Vector2D'

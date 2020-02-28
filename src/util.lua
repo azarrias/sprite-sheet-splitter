@@ -3,7 +3,7 @@
     width and a height for the tiles therein, split the texture into
     all of the quads by simply dividing it evenly.
 ]]
-function GenerateQuads(atlas, tilewidth, tileheight)
+function GenerateAllQuads(atlas, tilewidth, tileheight)
   local sheetWidth = atlas:getWidth() / tilewidth
   local sheetHeight = atlas:getHeight() / tileheight
   
@@ -13,6 +13,33 @@ function GenerateQuads(atlas, tilewidth, tileheight)
     for x = 0, sheetWidth - 1 do
       table.insert(spritesheet, love.graphics.newQuad(x * tilewidth, y * tileheight,
           tilewidth, tileheight, atlas:getDimensions()))
+    end
+  end
+  
+  return spritesheet
+end
+
+--[[
+    Given an "atlas", as well as all necessary parameters, slice the
+    texture into the selected quads.
+    Parameters:
+    rows - number of rows of sprites
+    columns - number of columns of sprites
+    spriteSize - Vector2D with the sprite dimensions
+    padding - Vector2D with the x, y padding between sprites
+    offset - Vector2D with an initial offset to start slicing the sprites
+]]
+function GenerateQuads(atlas, rows, columns, spriteSize, padding, offset)
+  local spritesheet = {}
+  
+  for y = 0, nrOfRows - 1 do
+    for x = 0, nrOfColumns - 1 do
+      table.insert(spritesheet, love.graphics.newQuad(
+        x * (spriteSize.x + padding.x) + offset.x + 1,
+        y * (spriteSize.y + padding.y) + offset.y + 1,
+        spriteSize.x - 1,
+        spriteSize.y - 1,
+        atlas:getDimensions()))
     end
   end
   

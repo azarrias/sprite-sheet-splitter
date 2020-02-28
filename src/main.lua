@@ -22,14 +22,20 @@ function love.load(arg)
   love.window.setTitle(GAME_TITLE)
   love.graphics.setDefaultFilter('nearest', 'nearest')
   gui = SlicerGUI()
+  
+  appStateMachine = StateMachine {
+    ['start'] = function() return AppStateStart() end,
+    ['slice'] = function() return AppStateSlice() end
+  }
+  appStateMachine:change('start')
 end
 
 function love.update(dt)
-  gui:update(dt)
+  appStateMachine:update(dt)
 end
 
 function love.draw()
-  gui:render()
+  appStateMachine:render()
 end
 
 function love.quit()
