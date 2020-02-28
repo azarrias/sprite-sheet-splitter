@@ -4,6 +4,7 @@ push = require 'libs.push'
 imgui = require 'imgui'
 
 -- general purpose / utility
+require 'SlicerGUI'
 require 'util'
 require 'Vector2D'
 
