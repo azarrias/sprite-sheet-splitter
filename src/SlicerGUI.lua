@@ -89,6 +89,9 @@ function SlicerGUI:DrawEditDock()
   imgui.SetNextDockSplitRatio(0.7, 0.7)
   imgui.BeginDock("Edit")
   local x, y = imgui.CalcTextSize("Slicing parameters")
+  if not self.editMode then
+    imgui.PushStyleColor(ImGuiCol_Text, 0.7, 0.7, 0.7, 1)
+  end
   imgui.Indent(293 / 2 - x / 2)
   imgui.Text("Slicing parameters")
   imgui.Unindent(293 / 2 - x / 2)
@@ -104,7 +107,7 @@ function SlicerGUI:DrawEditDock()
     self:RenderIntParameter("Number of columns", "##nrOfColumns", nrOfColumns)
     self:RenderXYParameter("Pixels per sprite", "##spriteSize", spriteSize)
     self:RenderXYParameter("Offset", "##offset", offset)
-    self:RenderXYParameter("Padding", "##padding", padding)    
+    self:RenderXYParameter("Padding", "##padding", padding)
   end
   
   imgui.Dummy(0, 10)
@@ -112,6 +115,10 @@ function SlicerGUI:DrawEditDock()
   imgui.Indent(293 / 2 - buttonSize.x / 2)
   if imgui.Button("Slice", buttonSize.x, buttonSize.y) then
     appStateMachine.current:ClickSlice()
+  end
+
+  if not self.editMode then
+    imgui.PopStyleColor()
   end
 
   imgui.EndDock()
