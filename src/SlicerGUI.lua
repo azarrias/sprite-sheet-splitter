@@ -2,6 +2,7 @@ SlicerGUI = Class{}
 
 function SlicerGUI:init(def)
   self.editMode = true
+  self.editDockColor = { 1, 1, 1, 1 }
   self.image = love.graphics.newImage('graphics/character.png') 
   self.canvas = love.graphics.newCanvas(self.image:getWidth(), self.image:getHeight())
   self.quads = nil
@@ -89,9 +90,7 @@ function SlicerGUI:DrawEditDock()
   imgui.SetNextDockSplitRatio(0.7, 0.7)
   imgui.BeginDock("Edit")
   local x, y = imgui.CalcTextSize("Slicing parameters")
-  if not self.editMode then
-    imgui.PushStyleColor(ImGuiCol_Text, 0.7, 0.7, 0.7, 1)
-  end
+  imgui.PushStyleColor(ImGuiCol_Text, unpack(self.editDockColor))
   imgui.Indent(293 / 2 - x / 2)
   imgui.Text("Slicing parameters")
   imgui.Unindent(293 / 2 - x / 2)
@@ -112,13 +111,16 @@ function SlicerGUI:DrawEditDock()
   
   imgui.Dummy(0, 10)
   local buttonSize = Vector2D(50, 20)
-  imgui.Indent(293 / 2 - buttonSize.x / 2)
+  imgui.Indent(293 / 2 - buttonSize.x - 10)
   if imgui.Button("Slice", buttonSize.x, buttonSize.y) then
     appStateMachine.current:ClickSlice()
   end
-
-  if not self.editMode then
-    imgui.PopStyleColor()
+  
+  imgui.PopStyleColor()
+  
+  imgui.SameLine(293 / 2 + 10)
+  if imgui.Button("Cancel", buttonSize.x, buttonSize.y) then
+    appStateMachine.current:ClickCancel()
   end
 
   imgui.EndDock()
@@ -182,8 +184,4 @@ function SlicerGUI:RenderFixedOverlay(pos)
     imgui.Text("Mouse Position: (" .. tostring(x) .. ", " .. tostring(y) .. ")")
   end
   imgui.End();
-end
-
-function SlicerGUI:render()
-
 end
