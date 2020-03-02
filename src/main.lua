@@ -28,10 +28,13 @@ function love.load(arg)
     ['slice'] = function() return AppStateSlice() end
   }
   appStateMachine:change('start')
+  
+  love.mouse.doubleClicks = Deque()
 end
 
 function love.update(dt)
   appStateMachine:update(dt)
+  love.mouse.doubleClicks:clear()
 end
 
 function love.draw()
@@ -39,7 +42,7 @@ function love.draw()
 end
 
 function love.quit()
-  imgui.ShutDown();
+  imgui.ShutDown()
 end
 
 function love.textinput(t)
@@ -70,7 +73,10 @@ function love.mousemoved(x, y)
     end
 end
 
-function love.mousepressed(x, y, button)
+function love.mousepressed(x, y, button, istouch, presses)
+    if button == 1 and presses > 1 then
+      love.mouse.doubleClicks:push_front(Vector2D(x, y))
+    end
     imgui.MousePressed(button)
     if not imgui.GetWantCaptureMouse() then
         -- Pass event to the game

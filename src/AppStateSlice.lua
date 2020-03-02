@@ -6,6 +6,12 @@ function AppStateSlice:enter()
 end
 
 function AppStateSlice:update(dt)
+  if not love.mouse.doubleClicks:isEmpty() then
+    for k, dc in love.mouse.doubleClicks:iterator() do
+      print(dc)
+    end
+  end
+  
   gui:update(dt)
 end
 
