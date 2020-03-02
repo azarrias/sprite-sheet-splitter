@@ -12,6 +12,7 @@ sliceLineColor = { 0.9, 0.9, 0.9, 0.3 }
 canvasBackgroundColor = { 0, 0, 0, 1 }
 themePrimaryColor = { 1, 1, 1, 1 }
 backgroundTint = { 1, 1, 1, 1 }
+numbersColor = { 1, 0.7, 0.7, 0.7 }
 
 function love.load(arg)
   if debugMode and arg[#arg] == "-debug" then 
@@ -28,6 +29,8 @@ function love.load(arg)
     ['slice'] = function() return AppStateSlice() end
   }
   appStateMachine:change('start')
+  
+  love.graphics.setFont(love.graphics.newFont(8))
   
   love.mouse.doubleClicks = Deque()
 end
