@@ -18,7 +18,7 @@ function AppStateSlice:update(dt)
           
           if dc.x >= left and dc.x <= right and dc.y >= top and dc.y <= bottom then
             local id = (y - 1) * nrOfColumns + x
-            gui.animationFrames:push_front(id)
+            gui.animationFrames:push_back(id)
           end
         end
       end
