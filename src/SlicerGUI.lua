@@ -6,6 +6,8 @@ function SlicerGUI:init(def)
   self.image = love.graphics.newImage('graphics/character.png') 
   self.canvas = love.graphics.newCanvas(self.image:getWidth(), self.image:getHeight())
   self.quads = nil
+  self.spriteSheetPos = Vector2D(0, 0)
+  self.animationFrames = Deque()
 end
 
 function SlicerGUI:update(dt)
@@ -132,6 +134,10 @@ function SlicerGUI:DrawEditDock()
   if imgui.Button("Cancel", buttonSize.x, buttonSize.y) then
     appStateMachine.current:ClickCancel()
   end
+  
+  for k, frame in self.animationFrames:iterator() do
+    imgui.Text(frame)
+  end
 
   imgui.EndDock()
 end
@@ -147,8 +153,7 @@ function SlicerGUI:DrawSpritesheetDock()
   ]]
   imgui.SetNextDock("Left")
   imgui.BeginDock("Sprite sheet")
-  spritePos = Vector2D(0, 0)
-  spritePos.x, spritePos.y = imgui.GetCursorScreenPos()
+  self.spriteSheetPos.x, self.spriteSheetPos.y = imgui.GetCursorScreenPos()
   imgui.Image(self.canvas, self.image:getWidth() * spriteSheetScale, self.image:getHeight() * spriteSheetScale)
   imgui.EndDock()
  
