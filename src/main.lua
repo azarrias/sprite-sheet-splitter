@@ -9,9 +9,9 @@ spriteSize = Vector2D(16, 32)
 offset = Vector2D(0, 0)
 padding = Vector2D(0, 0)
 sliceLineColor = { 0.9, 0.9, 0.9, 0.3 }
-canvasBackgroundColor = { 0, 0, 0 }
-themePrimaryColor = { 1, 1, 1 }
-backgroundTint = { 1, 1, 1 }
+canvasBackgroundColor = { 0, 0, 0, 1 }
+themePrimaryColor = { 1, 1, 1, 1 }
+backgroundTint = { 1, 1, 1, 1 }
 
 function love.load(arg)
   if debugMode and arg[#arg] == "-debug" then 

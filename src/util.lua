@@ -35,10 +35,10 @@ function GenerateQuads(atlas, rows, columns, spriteSize, padding, offset)
   for y = 0, nrOfRows - 1 do
     for x = 0, nrOfColumns - 1 do
       table.insert(spritesheet, love.graphics.newQuad(
-        x * (spriteSize.x + padding.x) + offset.x + 1,
-        y * (spriteSize.y + padding.y) + offset.y + 1,
-        spriteSize.x - 1,
-        spriteSize.y - 1,
+        x * (spriteSize.x + padding.x) + offset.x,
+        y * (spriteSize.y + padding.y) + offset.y,
+        spriteSize.x,
+        spriteSize.y,
         atlas:getDimensions()))
     end
   end

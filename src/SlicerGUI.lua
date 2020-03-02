@@ -44,8 +44,8 @@ function SlicerGUI:DrawQuadsToCanvas()
       love.graphics.setColor(themePrimaryColor)
       love.graphics.draw(self.image, 
         self.quads[(y - 1) * nrOfColumns + x],
-        (x - 1) * (spriteSize.x + padding.x) + offset.x + 1,
-        (y - 1) * (spriteSize.y + padding.y) + offset.y + 1)
+        (x - 1) * (spriteSize.x + padding.x) + offset.x,
+        (y - 1) * (spriteSize.y + padding.y) + offset.y)
       
       love.graphics.setColor(sliceLineColor)
       love.graphics.rectangle('line', 
