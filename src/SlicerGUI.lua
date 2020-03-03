@@ -183,10 +183,9 @@ end
 
 function SlicerGUI:DrawAnimationDock()
   imgui.BeginDock("Preview animation")
-  imgui.Image(self.animationCanvas, spriteSize.x * spriteSheetScale, spriteSize.y * spriteSheetScale)
---  love.graphics.setCanvas(self.canvas)
---  love.graphics.setBlendMode('alpha', 'alphamultiply')
---  love.graphics.clear(canvasBackgroundColor)
+  if appStateMachine.current.animation then
+    imgui.Image(self.animationCanvas, spriteSize.x * spriteSheetScale, spriteSize.y * spriteSheetScale)
+  end
   imgui.EndDock()
 end
 
