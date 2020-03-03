@@ -5,9 +5,9 @@ function SlicerGUI:init(def)
   self.editDockColor = { 1, 1, 1, 1 }
   self.image = love.graphics.newImage('graphics/character.png') 
   self.canvas = love.graphics.newCanvas(self.image:getWidth(), self.image:getHeight())
+  self.animationCanvas = nil
   self.quads = nil
   self.spriteSheetPos = Vector2D(0, 0)
-  self.animationFrames = Deque()
 end
 
 function SlicerGUI:update(dt)
@@ -72,6 +72,21 @@ function SlicerGUI:DrawQuadsToCanvas()
   love.graphics.setCanvas()  
 end
 
+function SlicerGUI:DrawAnimationToCanvas()
+  love.graphics.setCanvas(self.animationCanvas)
+  love.graphics.setBlendMode('alpha', 'alphamultiply')
+  love.graphics.clear(canvasBackgroundColor)
+  appStateMachine.current.animation:draw(
+    self.image,
+    0,
+    0
+  )
+
+  love.graphics.setColor(themePrimaryColor)
+  
+  love.graphics.setCanvas()
+end
+
 function SlicerGUI:DrawWindow()
   imgui.SetNextWindowPos(0, 0)
   imgui.SetNextWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT)
@@ -86,8 +101,17 @@ function SlicerGUI:DrawDockspace()
   if imgui.Begin("DockArea", nil, { "ImGuiWindowFlags_NoTitleBar", "NoResize", "NoMove", "NoBringToFrontOnFocus" }) then
     imgui.BeginDockspace()
     
-    self:DrawEditDock()
+    -- SetNextDock is broken on the library port
+    -- but this layout is ok
+    imgui.SetNextDock("Right")
+    imgui.SetNextDockSplitRatio(0.25, 0.25)
     self:DrawSpritesheetDock()
+    imgui.SetNextDock("Left")
+    self:DrawEditDock()
+    imgui.SetNextDock("None")
+    self:DrawAnimationDock()
+    
+    imgui.EndDockspace()
   end
 
   imgui.End()
@@ -98,8 +122,6 @@ function SlicerGUI:DrawDockspace()
 end
 
 function SlicerGUI:DrawEditDock()
-  imgui.SetNextDock("Right")
-  imgui.SetNextDockSplitRatio(0.7, 0.7)
   imgui.BeginDock("Edit")
   local x, y = imgui.CalcTextSize("Slicing parameters")
   imgui.PushStyleColor(ImGuiCol_Text, unpack(self.editDockColor))
@@ -135,8 +157,10 @@ function SlicerGUI:DrawEditDock()
     appStateMachine.current:ClickCancel()
   end
   
-  for k, frame in self.animationFrames:iterator() do
-    imgui.Text(frame)
+  if appStateMachine.current.animationFrames then
+    for k, frame in appStateMachine.current.animationFrames:iterator() do
+      imgui.Text(frame)
+    end
   end
 
   imgui.EndDock()
@@ -151,13 +175,19 @@ function SlicerGUI:DrawSpritesheetDock()
      ...  
   end
   ]]
-  imgui.SetNextDock("Left")
   imgui.BeginDock("Sprite sheet")
   self.spriteSheetPos.x, self.spriteSheetPos.y = imgui.GetCursorScreenPos()
   imgui.Image(self.canvas, self.image:getWidth() * spriteSheetScale, self.image:getHeight() * spriteSheetScale)
   imgui.EndDock()
- 
-  imgui.EndDockspace()
+end
+
+function SlicerGUI:DrawAnimationDock()
+  imgui.BeginDock("Preview animation")
+  imgui.Image(self.animationCanvas, spriteSize.x * spriteSheetScale, spriteSize.y * spriteSheetScale)
+--  love.graphics.setCanvas(self.canvas)
+--  love.graphics.setBlendMode('alpha', 'alphamultiply')
+--  love.graphics.clear(canvasBackgroundColor)
+  imgui.EndDock()
 end
 
 function SlicerGUI:RenderIntParameter(label, id, value)

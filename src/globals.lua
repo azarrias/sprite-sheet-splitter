@@ -6,6 +6,7 @@ imgui = require 'imgui'
 -- general purpose / utility
 require 'StateMachine'
 require 'BaseState'
+require 'Animation'
 require 'AppStateSlice'
 require 'AppStateStart'
 require 'Deque'
