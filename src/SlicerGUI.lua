@@ -149,6 +149,7 @@ function SlicerGUI:DrawEditDock()
   if imgui.Button("Slice", buttonSize.x, buttonSize.y) then
     appStateMachine.current:ClickSlice()
   end
+  imgui.Unindent(293 / 2 - buttonSize.x - 10)
   
   imgui.PopStyleColor()
   
@@ -157,10 +158,30 @@ function SlicerGUI:DrawEditDock()
     appStateMachine.current:ClickCancel()
   end
   
-  if appStateMachine.current.animationFrames then
-    for k, frame in appStateMachine.current.animationFrames:iterator() do
-      imgui.Text(frame)
+  if not self.editMode then
+    imgui.Dummy(0, 15)
+    local x, y = imgui.CalcTextSize("Animation properties")
+    imgui.Indent(293 / 2 - x / 2)
+    imgui.Text("Animation properties")
+    imgui.Unindent(293 / 2 - x / 2)
+    
+    local status
+    appStateMachine.current.animationInterval, status = self:RenderFloatParameter(
+      "Interval", "##animationInterval", appStateMachine.current.animationInterval)
+    
+    if status then
+      appStateMachine.current:rebuildAnimation()
     end
+    
+    local frameIds = "Frame IDs: "
+    if not appStateMachine.current.animationFrames:isEmpty() then
+      for k, frame in appStateMachine.current.animationFrames:iterator() do
+        frameIds = frameIds .. frame .. ", " 
+      end
+      imgui.Text(frameIds:sub(1, -3))
+    else
+      imgui.Text(frameIds)
+    end    
   end
 
   imgui.EndDock()
@@ -198,6 +219,18 @@ function SlicerGUI:RenderIntParameter(label, id, value)
   imgui.PopItemWidth()
   
   return value
+end
+
+function SlicerGUI:RenderFloatParameter(label, id, value)
+  local status
+  imgui.AlignTextToFramePadding()
+  imgui.Text(label)
+  imgui.SameLine(150)
+  imgui.PushItemWidth(142)
+  value, status = imgui.InputFloat(id, value)
+  imgui.PopItemWidth()
+  
+  return value, status
 end
 
 function SlicerGUI:RenderXYParameter(label, id, value)

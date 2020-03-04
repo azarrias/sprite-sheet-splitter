@@ -5,6 +5,7 @@ function AppStateSlice:enter()
   gui.quads = GenerateQuads(gui.image, nrOfRows, nrOfColumns, spriteSize, padding, offset)
   gui.animationCanvas = love.graphics.newCanvas(spriteSize.x, spriteSize.y)
   self.animationFrames = Deque()
+  self.animationInterval = 0.5
   self.animation = nil
 end
 
@@ -23,15 +24,7 @@ function AppStateSlice:update(dt)
             local id = (y - 1) * nrOfColumns + x
             self.animationFrames:push_back(id)
             
-            local quads = {}
-            for k, frame in self.animationFrames:iterator() do
-              table.insert(quads, gui.quads[frame])
-            end
-            
-            self.animation = Animation {
-              frames = quads,
-              interval = 0.5
-            }
+            self:rebuildAnimation()
           end
         end
       end
@@ -61,4 +54,16 @@ function AppStateSlice:ClickCancel()
   self.animationFrames:clear()
   self.animation = nil
   appStateMachine:change('start')
+end
+
+function AppStateSlice:rebuildAnimation()
+  local quads = {}
+  for k, frame in self.animationFrames:iterator() do
+    table.insert(quads, gui.quads[frame])
+  end
+  
+  self.animation = Animation {
+    frames = quads,
+    interval = self.animationInterval
+  }
 end
