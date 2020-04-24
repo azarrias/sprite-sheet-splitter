@@ -2,7 +2,7 @@ AppStateSlice = Class{__includes = BaseState}
 
 function AppStateSlice:enter()
   gui.editMode = false
-  gui.quads = GenerateQuads(gui.image, nrOfRows, nrOfColumns, spriteSize, padding, offset)
+  gui.quads = GenerateQuads(gui.image, nrOfRows, nrOfColumns, spriteSize, offset, padding)
   gui.animationCanvas = love.graphics.newCanvas(spriteSize.x, spriteSize.y)
   self.animationFrames = Deque()
   self.animationInterval = 0.5
