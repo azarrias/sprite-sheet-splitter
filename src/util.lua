@@ -26,14 +26,16 @@ end
     rows - number of rows of sprites
     columns - number of columns of sprites
     spriteSize - Vector2D with the sprite dimensions
-    padding - Vector2D with the x, y padding between sprites
     offset - Vector2D with an initial offset to start slicing the sprites
+    padding - Vector2D with the x, y padding between sprites
 ]]
-function GenerateQuads(atlas, rows, columns, spriteSize, padding, offset)
+function GenerateQuads(atlas, rows, columns, spriteSize, offset, padding)
   local spritesheet = {}
+  offset = offset or Vector2D(0, 0)
+  padding = padding or Vector2D(0, 0)
   
-  for y = 0, nrOfRows - 1 do
-    for x = 0, nrOfColumns - 1 do
+  for y = 0, rows - 1 do
+    for x = 0, columns - 1 do
       table.insert(spritesheet, love.graphics.newQuad(
         x * (spriteSize.x + padding.x) + offset.x,
         y * (spriteSize.y + padding.y) + offset.y,
