@@ -6,7 +6,7 @@ I needed some tool to help me split irregular sprite sheets and setup animations
 On the other hand, I wanted to experiment with integrating ImGui to a LÖVE2D project.
 
 ## Prerequisites
-This software can run "as is", with the [LOVE-IMGUI](https://github.com/slages/love-imgui)(imgui module for LÖVE2D including lua bindings) being directly included in the src folder (ugly, I know).
+This software can run "as is", with the [LOVE-IMGUI library](https://github.com/slages/love-imgui) (imgui module for LÖVE2D including lua bindings) being directly included in the src folder (ugly, I know).
 
 ## How to use
 You can modify the "slicing parameters" until you are satisfied with your selection.
