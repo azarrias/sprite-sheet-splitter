@@ -3,8 +3,11 @@ SlicerGUI = Class{}
 function SlicerGUI:init(def)
   self.editMode = true
   self.editDockColor = { 1, 1, 1, 1 }
-  self.image = love.graphics.newImage('graphics/character.png') 
-  self.canvas = love.graphics.newCanvas(self.image:getWidth(), self.image:getHeight())
+  self.image = self:OpenImage()
+  --self.image = love.graphics.newImage('graphics/character.png') 
+  if self.image then
+    self.canvas = love.graphics.newCanvas(self.image:getWidth(), self.image:getHeight())
+  end
   self.animationCanvas = nil
   self.quads = nil
   self.spriteSheetPos = Vector2D(0, 0)
@@ -261,4 +264,21 @@ function SlicerGUI:RenderFixedOverlay(pos)
     imgui.Text("Mouse Position: (" .. tostring(x) .. ", " .. tostring(y) .. ")")
   end
   imgui.End();
+end
+
+function SlicerGUI:OpenImage()
+  -- Use nativefiledialog library to open image file (only LOVE2D supported formats)
+  local filePath = nfd.open("png,tga")
+  -- Quit if user pressed Cancel on the file dialog
+  if not filePath then
+    love.event.quit()
+  -- Reopen file dialog if the file extension is not supported
+  elseif filePath:sub(-3):lower() ~= "png" and filePath:sub(-3):lower() ~= "tga" then
+    return self:OpenImage()
+  else
+    local file = io.open(filePath, "rb")
+    local fileString = file:read("*a")
+    local fileData = love.filesystem.newFileData(fileString, filePath:gsub(".-([^\\/]-[^%.]+)$", ""))
+    return love.graphics.newImage(fileData)
+  end
 end
