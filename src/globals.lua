@@ -1,3 +1,17 @@
+-- determine the extension of c libraries based on the OS
+local lib_ext
+if love._os == "Windows" then
+	lib_ext = ".dll"
+elseif love._os == "Linux" then
+	lib_ext = ".so"
+end
+if not lib_ext then
+	error("System apparently not Windows or Linux.")
+end
+
+-- add working directory to the search path for c modules
+package.cpath = package.cpath..";"..love.filesystem.getWorkingDirectory().."/?"..lib_ext
+
 -- libraries
 Class = require 'libs.class'
 push = require 'libs.push'
