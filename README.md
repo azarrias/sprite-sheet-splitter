@@ -148,6 +148,8 @@ is not a Windows runtime validation.
 	architecture/dependencies, image rules, risks, and intentional differences.
 - [MIGRATION_PLAN.md](MIGRATION_PLAN.md): small, behavior-first migration phases.
 - [VALIDATION.md](VALIDATION.md): comparison results and platform acceptance list.
+- [FINAL_STATUS.md](FINAL_STATUS.md): completion summary, validated scope, known
+	differences, and remaining platform acceptance work.
 
 The old version can still be run separately using a compatible Windows x64
 LÖVE runtime with `src` as its working/application directory; its DLL versions
