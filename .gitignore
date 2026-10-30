@@ -74,6 +74,18 @@ ehthumbs_vista.db
 # Recycle Bin used on file shares
 $RECYCLE.BIN/
 
+### Python migration ###
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+build/
+dist/
+imgui.ini
+*.imgui.ini
+
 # Windows Installer files
 *.cab
 *.msi

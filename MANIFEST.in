@@ -1,0 +1,3 @@
+include MIGRATION_ANALYSIS.md MIGRATION_PLAN.md VALIDATION.md preview.gif
+recursive-include tests *.py
+recursive-include src *.lua *.png

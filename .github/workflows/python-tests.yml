@@ -1,0 +1,33 @@
+name: Python migration tests
+
+on: [push, pull_request]
+
+jobs:
+  parity:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+        python: ['3.12', '3.13', '3.14']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install -e ".[test]"
+      - run: python -m pytest -q
+
+  linux-gui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: sudo -n apt-get update && sudo -n apt-get install -y xvfb libgl1 libegl1 libxkbcommon0
+      - run: python -m pip install -e ".[test]"
+      - run: xvfb-run -a python -m pytest tests/test_gui.py -q
+        env:
+          SPRITE_SPLITTER_GUI_TEST: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
