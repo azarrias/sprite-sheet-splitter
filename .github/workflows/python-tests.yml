@@ -1,9 +1,9 @@
-name: Python migration tests
+name: Python tests
 
 on: [push, pull_request]
 
 jobs:
-  parity:
+  tests:
     strategy:
       fail-fast: false
       matrix:

@@ -1,13 +1,11 @@
 # Sprite Sheet Splitter
 
 Preview slicing settings for irregular sprite sheets and build animation
-sequences by double-clicking frames. This is a Python migration of the original
-LÖVE/ImGui utility, **not a redesign**.
+sequences by double-clicking frames. A Python desktop application built with
+Dear ImGui Bundle, Pillow, and NumPy.
 
-**Like the original, this application previews slices; it does not export
+**This application previews slices; it does not export
 sprite images, animations, or metadata, and does not save projects/settings.**
-
-![Original workflow](preview.gif)
 
 ## Requirements
 
@@ -16,7 +14,7 @@ sprite images, animations, or metadata, and does not save projects/settings.**
 	macOS is best-effort, using the same dependencies, not yet validated.
 - A working desktop display and OpenGL-capable graphics driver (normally
 	OpenGL 3.3+; macOS uses the platform-supported core profile). Headless SSH
-	sessions need a display server. No LÖVE installation or old DLLs are needed.
+	sessions need a display server.
 - Runtime packages installed automatically: Dear ImGui Bundle (including
 	Hello ImGui and Portable File Dialogs), Pillow, and NumPy.
 
@@ -78,20 +76,20 @@ do not install Linux system packages. The native chooser uses macOS dialogs.
 	 minimum zoom is 1×. The same wheel event also reaches ImGui scrolling.
 	 Docks are scrollable/rearrangeable. A mouse-position debug overlay is kept.
 
-For compatibility, after Slice the grey row/column controls ignore edits, but
+After Slice the grey row/column controls ignore edits, but
 the X/Y fields still mutate live layout/hit boxes while source rectangles stay
 frozen. Use Cancel before changing slicing parameters for predictable results.
-Boundary/overlapping clicks can select more than one frame, as in the original.
+Boundary/overlapping clicks can select more than one frame.
 
 An optional image argument skips the chooser (paths with spaces must be quoted):
 
 ```sh
-python -m sprite_sheet_splitter "src/graphics/character.png"
+python -m sprite_sheet_splitter "/path/to/your/sprite sheet.png"
 ```
 
 Use your environment's Python path as shown above if it is not activated.
 
-## Tests and validation
+## Development and tests
 
 Install the optional test dependencies, then run from the repository root:
 
@@ -100,10 +98,11 @@ python -m pip install -e ".[test]"
 python -m pytest -q
 ```
 
-The tests execute the unchanged original Lua functions with Lupa's LuaJIT
-runtime. They compare geometry, frame order, animation timing, and in-memory
-canvas pixels through an explicit software adapter. A real desktop/GPU workflow
-test is opt-in (it briefly opens a window and injects clicks):
+The Python regression tests cover geometry, frame order, animation timing,
+image loading, dialog handling, and in-memory canvas pixels against an
+independent sampler. Test images are generated at runtime; no bundled assets
+or external language runtimes are required. A real desktop/GPU workflow test
+is opt-in (it briefly opens a window and injects clicks):
 
 ```powershell
 $env:SPRITE_SPLITTER_GUI_TEST = "1"
@@ -115,22 +114,29 @@ SPRITE_SPLITTER_GUI_TEST=1 .venv/bin/python -m pytest -q
 ```
 
 The Python CI workflow covers Windows/Linux 3.12–3.14 and Linux GUI rendering.
-See [VALIDATION.md](VALIDATION.md) for what was actually executed and the
-remaining real-Windows acceptance checks; Windows wheel availability alone
-is not a Windows runtime validation.
+Local validation includes the full regression suite and the real GUI workflow
+on Linux. Interactive Windows acceptance and macOS runtime validation remain
+platform-specific checks; CI unit tests do not replace them.
+
+To build a source distribution and wheel:
+
+```sh
+python -m pip install build
+python -m build
+```
 
 ## Compatibility, safety, and troubleshooting
 
 - Invalid images produce an error and reopen the chooser. PNG/TGA names are
-	checked case-insensitively; the original final-three-character check is kept.
+	checked case-insensitively using the final three characters of the filename.
 - Nonpositive sprite dimensions at Slice, nonpositive/non-finite intervals,
 	more than 100,000 regions, or canvas/display buffers above 64 million pixels
 	are rejected instead of crashing or hanging. Negative offsets/padding and
 	zero/negative row/column counts are retained. Extremely wide/tall textures
 	can also exceed your graphics driver's texture-size limit.
 - An empty frame sequence shows no preview, including after an interval edit.
-- Small font, grid rasterization, modern docking, and DPI/theme metrics differ
-	from the old native port. There is no claim of pixel-identical GUI screenshots.
+- Fonts, grid rasterization, docking, and DPI/theme metrics can vary across
+	platforms and graphics drivers.
 - If a graphical launcher closes without showing an error, launch via
 	`python -m sprite_sheet_splitter` in a terminal to see diagnostics.
 - On Linux, missing-dialog errors mean Zenity/KDialog needs installing; display
@@ -138,26 +144,17 @@ is not a Windows runtime validation.
 - No settings/output files are written; installation/build/test tools may
 	create their usual ignored environment, cache, and distribution directories.
 
-## Repository layout and migration documents
+## Repository layout
 
-- [python/sprite_sheet_splitter](python/sprite_sheet_splitter): new implementation;
+- [python/sprite_sheet_splitter](python/sprite_sheet_splitter): application package;
 	independent model, Pillow imaging, and thin ImGui desktop shell.
-- [tests](tests): regression, original-Lua comparison, dialog, and GUI tests.
-- [src](src): unchanged original Lua application and bundled Windows bindings.
-- [MIGRATION_ANALYSIS.md](MIGRATION_ANALYSIS.md): full behavior inventory,
-	architecture/dependencies, image rules, risks, and intentional differences.
-- [MIGRATION_PLAN.md](MIGRATION_PLAN.md): small, behavior-first migration phases.
-- [VALIDATION.md](VALIDATION.md): comparison results and platform acceptance list.
-- [FINAL_STATUS.md](FINAL_STATUS.md): completion summary, validated scope, known
-	differences, and remaining platform acceptance work.
-
-The old version can still be run separately using a compatible Windows x64
-LÖVE runtime with `src` as its working/application directory; its DLL versions
-and exact engine compatibility were never specified upstream. Do not copy the
-old native modules into Python's environment.
+- [tests](tests): self-contained model, imaging, dialog, and GUI regression tests.
+- [pyproject.toml](pyproject.toml): dependencies, packaging, entry point, and test
+	configuration.
+- [.github/workflows/python-tests.yml](.github/workflows/python-tests.yml):
+	Windows/Linux test matrix and Linux GUI workflow.
 
 ## License
 
-[GPL-3.0](LICENSE), unchanged from the repository. Original vendored Lua helpers
-retain their embedded third-party license notices. Installed Python/native
-dependencies are distributed under their respective upstream licenses.
+[GPL-3.0](LICENSE). Installed Python/native dependencies are distributed under
+their respective upstream licenses.

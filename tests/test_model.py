@@ -93,7 +93,7 @@ def test_safety_limits_and_zoom():
     assert s.scale == 1.5
 
 
-def test_generate_quads_matches_original_lua_randomized(lua):
+def test_generate_quads_row_major_geometry_randomized():
     rng = random.Random(410088)
     for _ in range(250):
         p = Parameters(
@@ -102,62 +102,63 @@ def test_generate_quads_matches_original_lua_randomized(lua):
             rng.randint(-40, 40), rng.randint(-40, 40),
             rng.randint(-20, 20), rng.randint(-20, 20),
         )
-        values = lua.globals()
-        result = values.GenerateQuads(
-            values.atlas, p.rows, p.columns,
-            values.Vector2D(p.width, p.height),
-            values.Vector2D(p.offset_x, p.offset_y),
-            values.Vector2D(p.padding_x, p.padding_y),
-        )
-        expected = [tuple(result[i][key] for key in ("x", "y", "width", "height")) for i in range(1, len(result) + 1)]
+        expected = []
+        y = p.offset_y
+        for _row in range(p.rows):
+            x = p.offset_x
+            for _column in range(p.columns):
+                expected.append((x, y, p.width, p.height))
+                x += p.width + p.padding_x
+            y += p.height + p.padding_y
         actual = [(q.x, q.y, q.width, q.height) for q in generate_quads(p)]
         assert actual == expected
 
 
 @pytest.mark.parametrize("frames,interval", [([], 0.5), ([4], 0.1), ([1, 2, 1, 3], 0.5), ([2, 9], 0.07)])
-def test_animation_matches_original_lua(lua, frames, interval):
-    original = lua.globals().Animation(lua.table_from({"frames": lua.table_from(frames), "interval": interval}))
-    migrated = Animation(frames, interval)
-    for dt in [0, interval, 0.001, 5, 0.02, 0.5, 0.1] * 30:
-        original.update(original, dt)
-        migrated.update(dt)
-        assert migrated.current_frame == original.currentFrame
-        assert migrated.timer == pytest.approx(original.timer)
+def test_animation_empty_single_and_repeated_sequences(frames, interval):
+    animation = Animation(frames, interval)
+    animation.update(0)
+    assert animation.current_frame == 1
+    assert animation.frame_id == (frames[0] if frames else None)
+    for step in range(1, 121):
+        # A long update advances exactly once, including across sequence wraps.
+        animation.update(interval * 2.5)
+        if len(frames) > 1:
+            assert animation.current_frame == step % len(frames) + 1
+            assert animation.frame_id == frames[step % len(frames)]
+            assert 0 <= animation.timer < interval
+        else:
+            assert animation.current_frame == 1
+            assert animation.frame_id == (frames[0] if frames else None)
+            assert animation.timer == 0
 
 
-def test_slice_state_matches_original_lua(lua):
-    lua.globals().reset_session(2, 2, 4, 4, 0, 0, 0, 0)
-    lua.execute("appStateMachine.current:ClickSlice()")
+def test_slice_state_selection_trace_and_live_geometry():
     s = Session(Parameters(2, 2, 4, 4))
     s.slice()
     # All four inclusive boundary hits, repeated frames, outside clicks.
-    for x, y in [(4, 4), (1, 1), (-1, 1), (5, 5), (4, 4)]:
-        lua.globals().click_x, lua.globals().click_y = x, y
-        lua.execute("""
-            love.mouse.doubleClicks:push_front(Vector2D(click_x,click_y))
-            appStateMachine.current:update(0.1)
-            love.mouse.doubleClicks:clear()
-        """)
-        s.double_click(x, y)
+    expected = []
+    for x, y, hits in [
+        (4, 4, [1, 2, 3, 4]),
+        (1, 1, [1]),
+        (-1, 1, []),
+        (5, 5, [4]),
+        (4, 4, [1, 2, 3, 4]),
+    ]:
+        assert s.double_click(x, y) == hits
+        expected.extend(hits)
         s.update(0.1)
-        state = lua.globals().appStateMachine.current
-        expected = [state.animationFrames["items"][i] for i in range(state.animationFrames.front, state.animationFrames.back + 1)]
         assert s.frames == expected
-        assert s.animation.current_frame == state.animation.currentFrame
-    # Live-vector mutation is not a hypothetical requirement.
-    lua.execute("spriteSize.x = 8; offset.x = -2; padding.x = -2")
+        assert s.animation.current_frame == 1
+    frozen = s.quads.copy()
     s.parameters.width, s.parameters.offset_x, s.parameters.padding_x = 8, -2, -2
-    lua.execute("""
-        love.mouse.doubleClicks:push_front(Vector2D(4,1))
-        appStateMachine.current:update(0)
-        appStateMachine.current.animationInterval = 0.2
-        appStateMachine.current:rebuildAnimation()
-    """)
-    s.double_click(4, 1)
+    assert s.double_click(4, 1) == [1, 2]
     s.set_interval(0.2)
-    state = lua.globals().appStateMachine.current
-    assert s.frames == [state.animationFrames["items"][i] for i in range(state.animationFrames.front, state.animationFrames.back + 1)]
-    assert s.animation.current_frame == state.animation.currentFrame == 1
-    lua.execute("appStateMachine.current:ClickCancel()")
+    assert s.frames == expected + [1, 2]
+    assert s.quads == frozen
+    assert s.animation_size == (4, 4)
+    assert s.animation.current_frame == 1
+    assert s.animation.timer == 0
     s.cancel()
-    assert lua.globals().gui.editMode == (not s.sliced)
+    assert not s.sliced
+    assert s.frames == [] and s.animation is None

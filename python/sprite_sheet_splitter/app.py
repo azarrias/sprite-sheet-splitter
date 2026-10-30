@@ -1,4 +1,4 @@
-"""Thin Dear ImGui desktop shell. The legacy DLLs are never imported."""
+"""Thin Dear ImGui desktop shell for the sprite sheet preview tool."""
 
 from dataclasses import astuple
 from pathlib import Path
@@ -49,7 +49,7 @@ class Application:
     def new_frame(self) -> None:
         io = imgui.get_io()
         self.session.wheel(io.mouse_wheel)
-        # Like Lua: no WantCaptureMouse/hover/clip check; test every region.
+        # No WantCaptureMouse/hover/clip check; test every region.
         if self.sheet_origin is not None and imgui.get_mouse_clicked_count(0) > 1:
             x = (io.mouse_pos.x - self.sheet_origin[0]) / self.session.scale
             y = (io.mouse_pos.y - self.sheet_origin[1]) / self.session.scale
@@ -96,7 +96,7 @@ class Application:
         self.centered("Slicing parameters")
         self.scalar("Number of rows", "rows")
         self.scalar("Number of columns", "columns")
-        # Keep the original shared-vector mutation bug in sliced mode.
+        # X/Y edits remain live in sliced mode; source rectangles stay frozen.
         self.xy("Pixels per sprite", "width", "height")
         self.xy("Offset", "offset_x", "offset_y")
         self.xy("Padding", "padding_x", "padding_y")

@@ -1,4 +1,4 @@
-"""GUI-independent translation of GenerateQuads and the original two states."""
+"""GUI-independent sprite geometry, animation timing, and editing session."""
 
 from dataclasses import dataclass, field
 import math
@@ -58,7 +58,7 @@ class Animation:
     frames: list[int]
     interval: float = 0.5
     timer: float = 0.0
-    current_frame: int = 1  # Deliberately 1-based, like Animation.lua.
+    current_frame: int = 1  # Frame positions and IDs are deliberately 1-based.
 
     def __post_init__(self) -> None:
         if not math.isfinite(self.interval) or self.interval <= 0:

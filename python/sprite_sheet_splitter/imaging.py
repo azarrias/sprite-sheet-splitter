@@ -1,4 +1,4 @@
-"""Pillow equivalent of the original black-backed LÖVE canvases."""
+"""Pillow rendering for black-backed sprite sheets and animation previews."""
 
 from pathlib import Path
 
@@ -12,7 +12,7 @@ NUMBERS = (255, 178, 178, 178)
 
 
 def supported_filename(path: str | Path) -> bool:
-    # Keep the Lua final-three-characters check, including its missing-dot quirk.
+    # Match the final three characters; a separating dot is not required.
     return str(path)[-3:].lower() in ("png", "tga")
 
 
@@ -25,7 +25,7 @@ def load_image(path: str | Path) -> Image.Image:
 
 
 def clamped_crop(image: Image.Image, region: Region) -> Image.Image:
-    """LÖVE's clamp-to-edge texture wrap, including completely outside quads.
+    """Clamp-to-edge texture sampling, including completely outside quads.
 
     Construct at most nine pieces: valid pixels, stretched edge strips, corners.
     Pillow crop alone would incorrectly fill the outside with transparent black.

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "sprite-sheet-splitter"
 version = "2.0.0"
-description = "A faithful Python migration of the LÖVE sprite sheet and animation preview tool"
+description = "A Python desktop tool for sprite sheet slicing and animation preview"
 readme = "README.md"
 requires-python = ">=3.12"
 license = "GPL-3.0-only"
@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-test = ["pytest>=8,<10", "lupa>=2.6,<3"]
+test = ["pytest>=8,<10"]
 
 [project.gui-scripts]
 sprite-sheet-splitter = "sprite_sheet_splitter.__main__:main"

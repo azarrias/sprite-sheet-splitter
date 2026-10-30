@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import numpy as np
 from PIL import Image
 import pytest
@@ -9,11 +7,9 @@ from sprite_sheet_splitter.imaging import (
 )
 from sprite_sheet_splitter.model import Parameters, Region, Session
 
-ROOT = Path(__file__).resolve().parents[1]
-
-
-def sample_image():
-    values = np.arange(6 * 5 * 4, dtype=np.uint8).reshape((5, 6, 4))
+def sample_image(size=(6, 5)):
+    width, height = size
+    values = np.arange(width * height * 4, dtype=np.uint8).reshape((height, width, 4))
     values[:, :, 3] = 128
     return Image.fromarray(values)
 
@@ -56,7 +52,7 @@ def test_black_background_only_slices_and_frozen_preview():
     assert sliced.getpixel((0, 0)) == (0, 0, 0, 255)
     assert sliced.getpixel((2, 2)) == editing.getpixel((2, 2))
     assert render_animation(image, s) is None
-    s.set_interval(0.2)  # Original builds an empty animation; display safely blank.
+    s.set_interval(0.2)  # An empty animation must still display safely blank.
     assert render_animation(image, s) is None
     s.double_click(3, 3)
     s.parameters.width = 5
@@ -75,64 +71,34 @@ def test_nearest_neighbor_and_display_safety():
         display_image(image, (1_000_000, 1_000_000))
 
 
-@pytest.mark.parametrize("asset", [False, True])
+@pytest.mark.parametrize("size", [(6, 5), (64, 128)])
 @pytest.mark.parametrize("params", [Parameters(), Parameters(2, 3, 4, 3, -2, 1, 1, 2), Parameters(2, 2, 4, 4, 0, 0, -2, -2)])
-def test_canvas_pixels_from_actual_lua_draw_calls(lua, asset, params):
-    """Execute original renderer; independently sample its emitted draw calls.
-
-    This is not a LÖVE GPU screenshot comparison: line/font rendering are omitted
-    and the LÖVE draw API is replaced by a small Pillow/NumPy software adapter.
-    """
-    image = load_image(ROOT / "src/graphics/character.png") if asset else sample_image()
-    g = lua.globals()
-    g.reset_session(params.rows, params.columns, params.width, params.height, params.offset_x, params.offset_y, params.padding_x, params.padding_y)
+def test_canvas_pixels_against_independent_sampler(size, params):
+    """Check alpha, clipping, overlap and edge sampling without GUI rendering."""
+    image = sample_image(size)
     source = np.asarray(image)
-    target = None
 
-    def clear(*_):
-        target.paste((0, 0, 0, 255), (0, 0, *target.size))
+    def tile(x, y):
+        ys = np.clip(np.arange(y, y + params.height), 0, image.height - 1)
+        xs = np.clip(np.arange(x, x + params.width), 0, image.width - 1)
+        return Image.fromarray(source[ys[:, None], xs])
 
-    def draw(_atlas, *args):
-        if len(args) == 2:
-            tile, x, y = image, *args
-        else:
-            q, x, y = args[:3]  # Animation supplies identity transform arguments too.
-            ys = np.clip(np.arange(q.y, q.y + q.height), 0, image.height - 1)
-            xs = np.clip(np.arange(q.x, q.x + q.width), 0, image.width - 1)
-            tile = Image.fromarray(source[ys[:, None], xs])
-        # Pillow alpha_composite clips destinations in the same canvas extent.
-        target.alpha_composite(tile, (int(x), int(y)))
-
-    graphics = g.love.graphics
-    graphics.setCanvas = lambda *args: None
-    graphics.setBlendMode = lambda *_: None
-    graphics.setColor = lambda *_: None
-    graphics.setLineStyle = lambda *_: None
-    graphics.rectangle = lambda *_: None
-    graphics.printf = lambda *_: None
-    graphics.clear, graphics.draw = clear, draw
-    lua.execute("""
-        canvasBackgroundColor = {0,0,0,1}
-        sliceLineColor = {0.9,0.9,0.9,0.3}
-        themePrimaryColor = {1,1,1,1}
-        numbersColor = {1,0.7,0.7,0.7}
-        WINDOW_WIDTH = 1280
-        unpack = table.unpack or unpack
-    """)
     session = Session(params)
-    for sliced in (False, True):
-        target = Image.new("RGBA", image.size)
-        if sliced:
-            lua.execute("appStateMachine.current:ClickSlice(); SlicerGUI.DrawQuadsToCanvas(gui)")
-            session.slice()
-        else:
-            lua.execute("SlicerGUI.DrawImageToCanvas(gui)")
-        assert render_sheet(image, session, overlays=False).tobytes() == target.tobytes()
+    editing = Image.new("RGBA", image.size, (0, 0, 0, 255))
+    editing.alpha_composite(image)
+    assert render_sheet(image, session, overlays=False).tobytes() == editing.tobytes()
+
+    session.slice()
+    sliced = Image.new("RGBA", image.size, (0, 0, 0, 255))
+    for row in range(params.rows):
+        for column in range(params.columns):
+            x = params.offset_x + column * (params.width + params.padding_x)
+            y = params.offset_y + row * (params.height + params.padding_y)
+            sliced.alpha_composite(tile(x, y), (x, y))
+    assert render_sheet(image, session, overlays=False).tobytes() == sliced.tobytes()
+
     session.double_click(params.offset_x + 1, params.offset_y + 1)
-    lua.execute("""
-        appStateMachine.current.animationFrames:push_back(1)
-        appStateMachine.current:rebuildAnimation()
-    """)
-    target = Image.new("RGBA", (params.width, params.height))
-    lua.execute("SlicerGUI.DrawAnimationToCanvas(gui)")
-    assert render_animation(image, session).tobytes() == target.tobytes()
+    assert session.animation.frame_id == 1
+    preview = Image.new("RGBA", (params.width, params.height), (0, 0, 0, 255))
+    preview.alpha_composite(tile(params.offset_x, params.offset_y))
+    assert render_animation(image, session).tobytes() == preview.tobytes()
