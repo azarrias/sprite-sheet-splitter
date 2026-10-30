@@ -22,7 +22,7 @@ test = ["pytest>=8,<10"]
 sprite-sheet-splitter = "sprite_sheet_splitter.__main__:main"
 
 [tool.setuptools.packages.find]
-where = ["python"]
+where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

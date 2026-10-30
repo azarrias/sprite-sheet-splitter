@@ -146,7 +146,7 @@ python -m build
 
 ## Repository layout
 
-- [python/sprite_sheet_splitter](python/sprite_sheet_splitter): application package;
+- [src/sprite_sheet_splitter](src/sprite_sheet_splitter): application package;
 	independent model, Pillow imaging, and thin ImGui desktop shell.
 - [tests](tests): self-contained model, imaging, dialog, and GUI regression tests.
 - [pyproject.toml](pyproject.toml): dependencies, packaging, entry point, and test
