@@ -7,6 +7,8 @@ Dear ImGui Bundle, Pillow, and NumPy.
 **This application previews slices; it does not export
 sprite images, animations, or metadata, and does not save projects/settings.**
 
+![Original workflow](preview.gif)
+
 ## Requirements
 
 - **64-bit Python 3.12 or newer** (tested locally with 3.12 and 3.14).
