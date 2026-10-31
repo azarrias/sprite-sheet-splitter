@@ -48,7 +48,7 @@ class Application:
 
     def new_frame(self) -> None:
         io = imgui.get_io()
-        self.session.wheel(io.mouse_wheel)
+        # Leave the mouse wheel exclusively to ImGui's native scrolling.
         # No WantCaptureMouse/hover/clip check; test every region.
         if self.sheet_origin is not None and imgui.get_mouse_clicked_count(0) > 1:
             x = (io.mouse_pos.x - self.sheet_origin[0]) / self.session.scale
@@ -91,6 +91,16 @@ class Application:
         imgui.text(text)
 
     def draw_edit(self) -> None:
+        imgui.text("Zoom")
+        imgui.same_line()
+        if imgui.button("-##zoom_out", (30, 20)):
+            self.session.zoom(-1)
+        imgui.same_line()
+        imgui.text(f"{self.session.scale:g}x")
+        imgui.same_line()
+        if imgui.button("+##zoom_in", (30, 20)):
+            self.session.zoom(1)
+        imgui.spacing()
         color = 0.7 if self.session.sliced else 1.0
         imgui.push_style_color(imgui.Col_.text, (color, color, color, 1))
         self.centered("Slicing parameters")

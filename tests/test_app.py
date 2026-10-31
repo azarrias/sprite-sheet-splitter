@@ -46,3 +46,39 @@ def test_sliced_scalar_ignored_but_xy_mutates(monkeypatch):
     assert application.session.parameters.width == 17
     assert application.session.parameters.height == 33
     assert application.session.animation_size == (16, 32)
+
+
+def test_mouse_wheel_does_not_zoom_or_consume_imgui_scroll(monkeypatch):
+    application = app.Application(Image.new("RGBA", (16, 16)))
+    io = SimpleNamespace(mouse_wheel=2.0, mouse_wheel_h=1.0, delta_time=0.1)
+    monkeypatch.setattr(app.imgui, "get_io", lambda: io)
+    application.new_frame()
+    assert application.session.scale == 1
+    assert io.mouse_wheel == 2.0
+    assert io.mouse_wheel_h == 1.0
+
+
+def test_zoom_buttons_work_in_editing_and_sliced_modes(monkeypatch):
+    application = app.Application(Image.new("RGBA", (16, 16)))
+    for name in (
+        "text", "same_line", "spacing", "push_style_color", "pop_style_color",
+        "dummy", "set_cursor_pos_x", "align_text_to_frame_padding", "set_next_item_width",
+    ):
+        monkeypatch.setattr(app.imgui, name, lambda *_: None)
+    monkeypatch.setattr(application, "centered", lambda *_: None)
+    monkeypatch.setattr(application, "scalar", lambda *_: None)
+    monkeypatch.setattr(application, "xy", lambda *_: None)
+    monkeypatch.setattr(app.imgui, "input_float", lambda _label, value: (False, value))
+    pressed = "-##zoom_out"
+    monkeypatch.setattr(app.imgui, "button", lambda label, *_: label == pressed)
+    application.draw_edit()
+    assert application.session.scale == 1
+    pressed = "+##zoom_in"
+    application.draw_edit()
+    assert application.session.scale == 2
+    application.session.slice()
+    application.draw_edit()
+    assert application.session.scale == 3
+    pressed = "-##zoom_out"
+    application.draw_edit()
+    assert application.session.scale == 2

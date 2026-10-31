@@ -72,8 +72,10 @@ do not install Linux system packages. The native chooser uses macOS dialogs.
 	 Adding a frame or changing the interval restarts the sequence.
 5. **Cancel** clears the sequence and returns to editing, retaining the sheet,
 	 parameters, and zoom. Cancel during editing does nothing.
-6. Use the **mouse wheel anywhere** to zoom the sheet and preview together;
-	 minimum zoom is 1×. The same wheel event also reaches ImGui scrolling.
+6. Use the **− / + buttons** next to **Zoom** in **Edit** to zoom the sheet and
+	 preview together in steps of 1×; minimum zoom is 1×. The current scale is
+	 shown between the buttons. The **mouse wheel only scrolls** ImGui panels,
+	 without changing zoom.
 	 Docks are scrollable/rearrangeable. A mouse-position debug overlay is kept.
 
 After Slice the grey row/column controls ignore edits, but

@@ -132,7 +132,8 @@ class Session:
             self.animation = Animation(self.frames.copy(), self.interval)
         return hits
 
-    def wheel(self, delta: float) -> None:
+    def zoom(self, delta: float) -> None:
+        """Adjust the shared sheet/preview scale, with a minimum of 1x."""
         self.scale = max(1, self.scale + delta)
 
     def update(self, dt: float) -> None:

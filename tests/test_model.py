@@ -25,7 +25,7 @@ def test_defaults_and_workflow():
     assert s.animation.timer == 0
     s.slice()  # No-op after Slice.
     assert s.interval == 0.1
-    s.wheel(4)
+    s.zoom(4)
     s.cancel()
     assert s.frames == [] and s.animation is None
     assert s.scale == 5
@@ -87,9 +87,9 @@ def test_safety_limits_and_zoom():
             s.slice()
         assert not s.sliced
     s = Session()
-    s.wheel(-100)
+    s.zoom(-100)
     assert s.scale == 1
-    s.wheel(0.5)
+    s.zoom(0.5)
     assert s.scale == 1.5
 
 
