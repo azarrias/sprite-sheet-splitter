@@ -91,6 +91,13 @@ python -m sprite_sheet_splitter "/path/to/your/sprite sheet.png"
 
 Use your environment's Python path as shown above if it is not activated.
 
+### Example sprite sheet
+
+The original [character.png](examples/character.png) is included for manual
+testing. Select it in the startup chooser, or pass `examples/character.png`
+as the image argument when running from the repository root. It is not
+required by the automated tests or bundled in the installed application.
+
 ## Development and tests
 
 Install the optional test dependencies, then run from the repository root:
@@ -151,6 +158,8 @@ python -m build
 - [src/sprite_sheet_splitter](src/sprite_sheet_splitter): application package;
 	independent model, Pillow imaging, and thin ImGui desktop shell.
 - [tests](tests): self-contained model, imaging, dialog, and GUI regression tests.
+- [examples/character.png](examples/character.png): original sprite sheet for
+	manual testing.
 - [pyproject.toml](pyproject.toml): dependencies, packaging, entry point, and test
 	configuration.
 - [.github/workflows/python-tests.yml](.github/workflows/python-tests.yml):
