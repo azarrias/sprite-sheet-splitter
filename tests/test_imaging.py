@@ -3,7 +3,13 @@ from PIL import Image
 import pytest
 
 from sprite_sheet_splitter.imaging import (
-    clamped_crop, display_image, load_image, render_animation, render_sheet, supported_filename,
+    clamped_crop,
+    display_image,
+    draw_grid,
+    load_image,
+    render_animation,
+    render_sheet,
+    supported_filename,
 )
 from sprite_sheet_splitter.model import Parameters, Region, Session
 
@@ -61,6 +67,21 @@ def test_black_background_only_slices_and_frozen_preview():
     shifted = render_sheet(image, s, overlays=False)
     assert shifted.getpixel((2, 2)) == (0, 0, 0, 255)
     assert shifted.getpixel((4, 2)) == (100, 50, 25, 255)
+
+
+def test_grid_outline_matches_sampled_pixel_bounds():
+    canvas = Image.new("RGBA", (8, 8), (0, 0, 0, 255))
+    original = canvas.getpixel((3, 3))
+
+    draw_grid(canvas, Region(2, 2, 4, 4))
+
+    assert canvas.getpixel((2, 3)) != original
+    assert canvas.getpixel((5, 3)) != original
+    assert canvas.getpixel((3, 2)) != original
+    assert canvas.getpixel((3, 5)) != original
+    assert canvas.getpixel((3, 3)) == original
+    assert canvas.getpixel((1, 3)) == original
+    assert canvas.getpixel((6, 3)) == original
 
 
 def test_nearest_neighbor_and_display_safety():

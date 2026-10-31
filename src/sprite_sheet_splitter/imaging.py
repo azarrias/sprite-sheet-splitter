@@ -65,8 +65,10 @@ def draw_region(canvas: Image.Image, image: Image.Image, region: Region, x: int,
 
 
 def draw_grid(canvas: Image.Image, rect: Region) -> None:
-    x1, x2 = sorted((rect.x + 1, rect.x + rect.width))
-    y1, y2 = sorted((rect.y + 1, rect.y + rect.height))
+    if rect.width <= 0 or rect.height <= 0:
+        return
+    x1, x2 = rect.x, rect.x + rect.width - 1
+    y1, y2 = rect.y, rect.y + rect.height - 1
     left, right = max(0, x1), min(canvas.width - 1, x2)
     top, bottom = max(0, y1), min(canvas.height - 1, y2)
     if left > right or top > bottom:
